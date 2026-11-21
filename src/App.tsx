@@ -108,6 +108,53 @@ export default function App() {
             </div>
           </section>
 
+          <section aria-labelledby="topic-cards-title" className="mx-auto mb-8 max-w-7xl">
+            <h2
+              id="topic-cards-title"
+              className="mb-2 text-xl font-semibold text-slate-900 sm:text-2xl"
+            >
+              Explore os tópicos
+            </h2>
+            <p className="mb-5 text-sm leading-6 text-slate-600">
+              Escolha um assunto para ir direto ao conteúdo.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {topics.map((topic) => (
+                <a
+                  key={topic.id}
+                  href={`#${topic.id}`}
+                  onClick={() => setActiveTopic(topic.id)}
+                  className="group flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-400 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600"
+                >
+                  <div className="mb-4 flex items-center justify-between">
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      {topic.label}
+                    </span>
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="h-5 w-5 text-slate-400 transition group-hover:translate-x-1 group-hover:text-emerald-600"
+                    >
+                      <path d="M5 12h14m-6-6 6 6-6 6" />
+                    </svg>
+                  </div>
+                  <h3 className="mb-2 text-lg font-semibold leading-6 text-slate-900">
+                    {topic.title}
+                  </h3>
+                  <p className="mb-5 flex-1 text-sm leading-6 text-slate-600">
+                    {topic.summary}
+                  </p>
+                  <span className="text-sm font-semibold text-emerald-700 group-hover:text-emerald-800">
+                    Ler tópico
+                  </span>
+                </a>
+              ))}
+            </div>
+          </section>
+
           <nav
             aria-label="Assuntos principais"
             className="sticky top-0 z-20 -mx-5 border-y border-slate-200 bg-[#f3fafb]/95 px-5 py-3 backdrop-blur sm:-mx-8 sm:px-8"
