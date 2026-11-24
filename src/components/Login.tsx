@@ -1,9 +1,12 @@
-
 import { useState, type FormEvent } from "react";
 import { supabase } from "../lib/supabase";
 import EsqueceuSenha from "./EsqueceuSenha";
 
-export default function Login() {
+type LoginProps = {
+  onEntrarSemConta: () => void;
+};
+
+export default function Login({ onEntrarSemConta }: LoginProps) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
@@ -62,7 +65,6 @@ export default function Login() {
       return;
     }
 
-    
     setCarregando(true);
 
     try {
@@ -100,15 +102,13 @@ export default function Login() {
       } else {
         setMensagem(
           mensagemOriginal ||
-            "Ocorreu um erro inesperado. Tente novamente."
+          "Ocorreu um erro inesperado. Tente novamente."
         );
       }
     } finally {
       setCarregando(false);
     }
   }
-
-
 
   function alternarModo() {
     setCadastro(!cadastro);
@@ -153,7 +153,6 @@ export default function Login() {
 
         <form onSubmit={autenticar} className="space-y-5">
 
-          
           <div>
             <label
               htmlFor="email"
@@ -175,7 +174,6 @@ export default function Login() {
             />
           </div>
 
-          
           <div>
             <label
               htmlFor="senha"
@@ -209,11 +207,10 @@ export default function Login() {
                   {criteriosSenha.map((criterio) => (
                     <li
                       key={criterio.descricao}
-                      className={`text-sm ${
-                        criterio.atendido
+                      className={`text-sm ${criterio.atendido
                           ? "text-emerald-700"
                           : "text-slate-500"
-                      }`}
+                        }`}
                     >
                       {criterio.atendido ? "✓" : "○"}{" "}
                       {criterio.descricao}
@@ -245,11 +242,10 @@ export default function Login() {
 
                 {confirmarSenha.length > 0 && (
                   <p
-                    className={`mt-2 text-sm ${
-                      senhasIguais
+                    className={`mt-2 text-sm ${senhasIguais
                         ? "text-emerald-700"
                         : "text-red-600"
-                    }`}
+                      }`}
                   >
                     {senhasIguais
                       ? "✓ As senhas coincidem."
@@ -260,7 +256,6 @@ export default function Login() {
             </>
           )}
 
-          
           <button
             type="button"
             onClick={() => setMostrarSenha(!mostrarSenha)}
@@ -269,13 +264,11 @@ export default function Login() {
             {mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
           </button>
 
-          
           {mensagem && (
             <p
               role="status"
-              className={`text-sm ${
-                erro ? "text-red-600" : "text-emerald-700"
-              }`}
+              className={`text-sm ${erro ? "text-red-600" : "text-emerald-700"
+                }`}
             >
               {mensagem}
             </p>
@@ -298,7 +291,6 @@ export default function Login() {
 
         </form>
 
-        
         {!cadastro && (
           <div className="mt-4 text-right">
             <button
@@ -326,6 +318,19 @@ export default function Login() {
           </button>
         </div>
 
+        <div className="mt-6 border-t border-slate-200 pt-5 text-center">
+          <p className="mb-3 text-sm text-slate-500">
+            Quer conhecer o conteúdo sem criar uma conta?
+          </p>
+
+          <button
+            type="button"
+            onClick={onEntrarSemConta}
+            className="w-full rounded-lg border border-emerald-700 px-4 py-3 font-semibold text-emerald-700 transition hover:bg-emerald-50"
+          >
+            Continuar sem conta
+          </button>
+        </div>
       </div>
     </div>
   );

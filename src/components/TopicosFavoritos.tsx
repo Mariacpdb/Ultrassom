@@ -5,7 +5,7 @@ import type { Topic } from "../data/topics";
 
 type Props = {
   topics: Topic[];
-  userId: string;
+  userId?: string;
   onSelectTopic: (id: string) => void;
 };
 
@@ -16,11 +16,14 @@ export default function TopicosFavoritos({
 }: Props) {
   const [favoritos, setFavoritos] = useState<string[]>([]);
   const [soFavoritos, setSoFavoritos] = useState(false);
-  const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(Boolean(userId));
   const [alterando, setAlterando] = useState<string | null>(null);
   const [erro, setErro] = useState("");
 
   useEffect(() => {
+    if (!userId) return;
+
+    const usuarioAtual = userId;
     let ativo = true;
 
     async function carregarFavoritos() {
@@ -31,7 +34,7 @@ export default function TopicosFavoritos({
       const { data, error } = await supabase
         .from("favorites")
         .select("topic_id")
-        .eq("user_id", userId);
+        .eq("user_id", usuarioAtual);
 
       if (!ativo) return;
 
@@ -52,7 +55,7 @@ export default function TopicosFavoritos({
   }, [userId]);
 
   async function alternarFavorito(topicId: string) {
-    if (alterando || carregando) return;
+    if (!userId || alterando || carregando) return;
 
     const jaFavorito = favoritos.includes(topicId);
 
@@ -95,7 +98,6 @@ export default function TopicosFavoritos({
     }
   }
 
-  // Decide quais cards devem aparecer
   const topicosVisiveis = soFavoritos
     ? topics.filter((topic) => favoritos.includes(topic.id))
     : topics;
@@ -115,25 +117,29 @@ export default function TopicosFavoritos({
           </h2>
 
           <p className="mt-2 text-sm text-slate-600">
-            Salve seus assuntos preferidos para encontrá-los depois.
+            {userId
+              ? "Salve seus assuntos preferidos para encontrá-los depois."
+              : "Explore os conteúdos gratuitamente. Entre na sua conta para salvar favoritos."}
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setSoFavoritos(!soFavoritos)}
-          disabled={carregando}
-          aria-pressed={soFavoritos}
-          className={`rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
-            soFavoritos
-              ? "border-emerald-700 bg-emerald-700 text-white"
-              : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
-          }`}
-        >
-          {soFavoritos
-            ? "Mostrar todos"
-            : `♥ Meus favoritos (${favoritos.length})`}
-        </button>
+        {userId && (
+          <button
+            type="button"
+            onClick={() => setSoFavoritos(!soFavoritos)}
+            disabled={carregando}
+            aria-pressed={soFavoritos}
+            className={`rounded-xl border px-4 py-2 text-sm font-semibold transition disabled:opacity-50 ${
+              soFavoritos
+                ? "border-emerald-700 bg-emerald-700 text-white"
+                : "border-emerald-200 bg-white text-emerald-700 hover:bg-emerald-50"
+            }`}
+          >
+            {soFavoritos
+              ? "Mostrar todos"
+              : `♥ Meus favoritos (${favoritos.length})`}
+          </button>
+        )}
       </div>
 
       {erro && (
@@ -178,40 +184,42 @@ export default function TopicosFavoritos({
                     {topic.label}
                   </span>
 
-                  <button
-                    type="button"
-                    onClick={() => void alternarFavorito(topic.id)}
-                    disabled={alterando !== null}
-                    aria-pressed={favorito}
-                    aria-label={
-                      favorito
-                        ? `Remover ${topic.title} dos favoritos`
-                        : `Adicionar ${topic.title} aos favoritos`
-                    }
-                    title={
-                      favorito
-                        ? "Remover dos favoritos"
-                        : "Adicionar aos favoritos"
-                    }
-                    className={`rounded-full p-2 transition hover:bg-rose-50 disabled:opacity-50 ${
-                      favorito
-                        ? "text-rose-600"
-                        : "text-slate-400 hover:text-rose-600"
-                    }`}
-                  >
-                    <svg
-                      aria-hidden="true"
-                      viewBox="0 0 24 24"
-                      fill={favorito ? "currentColor" : "none"}
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6"
+                  {userId && (
+                    <button
+                      type="button"
+                      onClick={() => void alternarFavorito(topic.id)}
+                      disabled={alterando !== null}
+                      aria-pressed={favorito}
+                      aria-label={
+                        favorito
+                          ? `Remover ${topic.title} dos favoritos`
+                          : `Adicionar ${topic.title} aos favoritos`
+                      }
+                      title={
+                        favorito
+                          ? "Remover dos favoritos"
+                          : "Adicionar aos favoritos"
+                      }
+                      className={`rounded-full p-2 transition hover:bg-rose-50 disabled:opacity-50 ${
+                        favorito
+                          ? "text-rose-600"
+                          : "text-slate-400 hover:text-rose-600"
+                      }`}
                     >
-                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
-                    </svg>
-                  </button>
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 24 24"
+                        fill={favorito ? "currentColor" : "none"}
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-6 w-6"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78Z" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
 
                 <h3 className="mb-2 text-lg font-semibold leading-6 text-slate-900">
