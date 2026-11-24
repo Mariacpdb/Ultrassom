@@ -12,6 +12,11 @@ export default function AuthGate() {
   const [verificando, setVerificando] = useState(true);
   const [erroSaida, setErroSaida] = useState("");
 
+  const [visitante, setVisitante] = useState(
+    () =>
+      sessionStorage.getItem("ultrassom_visitante") === "sim"
+  );
+
   const [recuperandoSenha, setRecuperandoSenha] = useState(
     () =>
       new URLSearchParams(window.location.search).get(
@@ -19,7 +24,6 @@ export default function AuthGate() {
       ) === "1"
   );
 
-  
   useEffect(() => {
     const {
       data: { subscription },
@@ -27,6 +31,11 @@ export default function AuthGate() {
       (evento, novaSessao) => {
         if (evento === "PASSWORD_RECOVERY") {
           setRecuperandoSenha(true);
+        }
+
+        if (novaSessao) {
+          sessionStorage.removeItem("ultrassom_visitante");
+          setVisitante(false);
         }
 
         setSessao(novaSessao);
@@ -39,7 +48,16 @@ export default function AuthGate() {
     };
   }, []);
 
-  
+  function entrarSemConta() {
+    sessionStorage.setItem("ultrassom_visitante", "sim");
+    setVisitante(true);
+  }
+
+  function abrirLogin() {
+    sessionStorage.removeItem("ultrassom_visitante");
+    setVisitante(false);
+  }
+
   async function sair() {
     setErroSaida("");
 
@@ -49,7 +67,7 @@ export default function AuthGate() {
       setErroSaida(error.message);
     }
   }
-  
+
   if (verificando) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f3fafb]">
@@ -59,7 +77,7 @@ export default function AuthGate() {
       </div>
     );
   }
-  
+
   if (recuperandoSenha) {
     if (!sessao) {
       return (
@@ -85,21 +103,30 @@ export default function AuthGate() {
     return <RedefinirSenha />;
   }
 
-  
-  if (!sessao) {
-    return <Login />;
+  if (!sessao && !visitante) {
+    return <Login onEntrarSemConta={entrarSemConta} />;
   }
 
   return (
     <>
       <div className="fixed right-4 top-4 z-[70] flex flex-col items-end gap-1">
-        <button
-          type="button"
-          onClick={sair}
-          className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-800"
-        >
-          Sair da conta
-        </button>
+        {sessao ? (
+          <button
+            type="button"
+            onClick={sair}
+            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-800"
+          >
+            Sair da conta
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={abrirLogin}
+            className="rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-emerald-800"
+          >
+            Entrar ou cadastrar
+          </button>
+        )}
 
         {erroSaida && (
           <p
@@ -111,7 +138,10 @@ export default function AuthGate() {
         )}
       </div>
 
-      <App userId={sessao.user.id} />
+      <App
+        key={sessao?.user.id ?? "visitante"}
+        userId={sessao?.user.id}
+      />
     </>
   );
 }

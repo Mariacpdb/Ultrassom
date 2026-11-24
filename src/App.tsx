@@ -9,7 +9,7 @@ import { topics } from "./data/topics";
 import TopicosFavoritos from "./components/TopicosFavoritos";
 
 
-export default function App({ userId }: { userId: string }) {
+export default function App({ userId }: { userId?: string }) {
   const [activeTopic, setActiveTopic] = useState(topics[0]?.id ?? "");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
