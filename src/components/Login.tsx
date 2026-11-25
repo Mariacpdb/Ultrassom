@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import ultrassomImage from "../assets/Ultrassom2.jpg";
 import { supabase } from "../lib/supabase";
 import EsqueceuSenha from "./EsqueceuSenha";
@@ -17,6 +17,7 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState(false);
   const [esqueceuSenha, setEsqueceuSenha] = useState(false);
+  const [gavetaAberta, setGavetaAberta] = useState(false);
 
   const caracteresEspeciais = "!@#$%^&*()_+-=[]{};'\":|<>?,./`~";
 
@@ -120,6 +121,42 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
     setErro(false);
   }
 
+  function abrirGaveta(modo: "login" | "cadastro") {
+    setCadastro(modo === "cadastro");
+    setSenha("");
+    setConfirmarSenha("");
+    setMostrarSenha(false);
+    setMensagem("");
+    setErro(false);
+    setGavetaAberta(true);
+  }
+
+  function fecharGaveta() {
+    if (carregando) return;
+    setGavetaAberta(false);
+    setMensagem("");
+    setErro(false);
+  }
+
+  useEffect(() => {
+    if (!gavetaAberta) return;
+
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function lidarComEscape(evento: KeyboardEvent) {
+      if (evento.key === "Escape" && !carregando) {
+        setGavetaAberta(false);
+      }
+    }
+
+    window.addEventListener("keydown", lidarComEscape);
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+      window.removeEventListener("keydown", lidarComEscape);
+    };
+  }, [gavetaAberta, carregando]);
+
   if (esqueceuSenha) {
     return (
       <EsqueceuSenha
@@ -129,8 +166,73 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(25rem,0.85fr)]">
-      <section className="order-2 relative overflow-hidden bg-gradient-to-br from-[#eef8f7] via-[#f7fbfa] to-[#e6f2f1] px-6 py-8 sm:px-10 sm:py-10 lg:order-1 lg:flex lg:min-h-screen lg:items-center lg:px-12 lg:py-12 xl:px-20">
+    <main className="min-h-screen bg-white lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(25rem,0.85fr)]">
+     
+     
+      <section
+        className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-slate-950 text-white lg:hidden"
+        aria-hidden={gavetaAberta}
+        inert={gavetaAberta}
+      >
+        <img
+          src={ultrassomImage}
+          alt="Fisioterapeuta aplicando ultrassom terapêutico em um paciente"
+          className="absolute inset-0 z-0 h-full w-full object-cover object-[65%_center]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 z-10 bg-gradient-to-b from-slate-950/55 via-slate-950/30 to-slate-950/95"
+        />
+        <div className="relative z-20 mx-auto flex min-h-[100svh] w-full max-w-lg flex-col justify-between px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-7 sm:px-8">
+          <div className="flex items-center gap-2.5">
+            <span aria-hidden="true" className="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.7)]" />
+            <span className="text-[0.73rem] font-bold uppercase tracking-[0.17em] text-white">
+              Ultrassom Terapêutico
+            </span>
+          </div>
+
+          <div className="pb-1 pt-16">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-200">
+              Conteúdo para aprender no seu ritmo
+            </p>
+            <h1 className="max-w-md text-[clamp(1.9rem,8vw,2.65rem)] font-semibold leading-[1.12] tracking-tight text-white drop-shadow-md">
+              Entenda o ultrassom terapêutico com clareza.
+            </h1>
+            <p className="mt-3 max-w-md text-sm leading-[1.55rem] text-slate-100 sm:text-base">
+              Explore um guia organizado por temas sobre os efeitos, os parâmetros
+              e as aplicações do ultrassom terapêutico.
+            </p>
+
+            <div className="mt-6 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={onEntrarSemConta}
+                className="min-h-12 w-full rounded-xl bg-emerald-600 px-4 py-3 text-base font-bold text-white shadow-lg shadow-black/20 transition hover:bg-emerald-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Explorar sem conta
+              </button>
+              <button
+                type="button"
+                onClick={() => abrirGaveta("login")}
+                className="min-h-12 w-full rounded-xl border border-white/70 bg-slate-950/35 px-4 py-3 text-base font-semibold text-white backdrop-blur-sm transition hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+              >
+                Entrar na minha conta
+              </button>
+              <button
+                type="button"
+                onClick={() => abrirGaveta("cadastro")}
+                className="min-h-10 w-full px-4 py-2 text-sm font-semibold text-white underline decoration-emerald-300 underline-offset-4 transition hover:text-emerald-200"
+              >
+                Ainda não tenho conta. Cadastrar-me
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+     
+
+      <section className="relative hidden overflow-hidden bg-gradient-to-br from-[#eef8f7] via-[#f7fbfa] to-[#e6f2f1] px-6 py-8 sm:px-10 sm:py-10 lg:order-1 lg:flex lg:min-h-screen lg:items-center lg:px-12 lg:py-12 xl:px-20">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl"
@@ -190,7 +292,35 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
         </div>
       </section>
 
-      <section className="order-1 flex flex-col px-6 py-8 sm:px-10 sm:py-12 lg:order-2 lg:min-h-screen lg:justify-center lg:border-l lg:border-slate-100 lg:px-12 xl:px-16">
+      {gavetaAberta && (
+        <button
+          type="button"
+          aria-label="Fechar janela de login"
+          onClick={fecharGaveta}
+          className="fixed inset-0 z-40 bg-slate-950/65 backdrop-blur-[2px] lg:hidden"
+        />
+      )}
+
+     
+
+      <section
+        role={gavetaAberta ? "dialog" : undefined}
+        aria-modal={gavetaAberta ? true : undefined}
+        aria-label={gavetaAberta ? (cadastro ? "Criar conta" : "Entrar na conta") : undefined}
+        className={`${gavetaAberta ? "login-mobile-sheet fixed inset-x-0 bottom-0 z-50 flex" : "hidden"} max-h-[92dvh] flex-col overflow-y-auto overscroll-contain rounded-t-[28px] bg-white px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 shadow-2xl sm:px-10 lg:static lg:z-auto lg:order-2 lg:flex lg:max-h-none lg:min-h-screen lg:overflow-visible lg:rounded-none lg:border-l lg:border-slate-100 lg:px-12 lg:py-12 lg:shadow-none xl:px-16`}
+      >
+        <div className="mb-5 flex items-center justify-between lg:hidden">
+          <span aria-hidden="true" className="ml-auto h-1.5 w-12 rounded-full bg-slate-200" />
+          <button
+            type="button"
+            aria-label="Fechar"
+            onClick={fecharGaveta}
+            disabled={carregando}
+            className="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-2xl text-slate-700 transition hover:bg-slate-200 disabled:opacity-50"
+          >
+            ×
+          </button>
+        </div>
         <div className="my-auto w-full max-w-md lg:mx-auto">
           <div className="mb-8">
             <p className="mb-3 text-base font-semibold uppercase tracking-[0.14em] text-emerald-900">
@@ -345,6 +475,7 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
                 type="button"
                 onClick={() => {
                   setMensagem("");
+                  setGavetaAberta(false);
                   setEsqueceuSenha(true);
                 }}
                 className="text-base font-semibold text-emerald-900 hover:underline"
@@ -353,6 +484,8 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
               </button>
             </div>
           )}
+
+
 
           <div className="mt-6 text-center">
             <button
@@ -380,6 +513,16 @@ export default function Login({ onEntrarSemConta }: LoginProps) {
           </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes ultrassomSlideUp {
+          from { transform: translateY(28px); opacity: 0.7; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+          .login-mobile-sheet { animation: ultrassomSlideUp 250ms ease-out both; }
+        }
+      `}</style>
     </main>
   );
 }
