@@ -1,5 +1,62 @@
 @import "tailwindcss";
 
+@layer base {
+  button:not(:disabled),
+  a[href],
+  [role="button"],
+  summary,
+  label[for],
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+
+  :focus-visible {
+    outline: 3px solid #047857;
+    outline-offset: 3px;
+  }
+}
+
+.reading-content :is(p, li, blockquote, article aside) {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.reading-content.reading-size-large :is(p, li, blockquote, article aside) {
+  font-size: 1.25rem;
+  line-height: 1.7;
+}
+
+.reading-content.reading-size-larger :is(p, li, blockquote, article aside) {
+  font-size: 1.375rem;
+  line-height: 1.7;
+}
+
+.high-contrast :is(
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600,
+  .text-slate-700
+) {
+  color: #0f172a;
+}
+
+.high-contrast :is(article, button, input, aside, section) {
+  border-color: #475569;
+}
+
+.high-contrast a:not([role="button"]) {
+  color: #065f46;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
